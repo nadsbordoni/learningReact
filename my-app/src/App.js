@@ -5,38 +5,47 @@ import Person from './Person/Person';
 class App extends Component {
   state = { //so funciona desse jeito em componente extendido
     persons: [
-      { name: 'Nadia', age: 23 },
-      { name: 'Daniel', age: 22 },
-      { name: 'Meu amigo zé', age: 24 }
+      { id: 'p1', name: 'Nadia', age: 23 },
+      { id: 'p2', name: 'Daniel', age: 22 },
+      { id: 'p3', name: 'Meu amigo zé', age: 24 }
     ],
     otherState: 'some other value',
     showPersons: false
   };
 
-  switchNameHandler = (newName) => {
-    // console.log('Was clicked!');
-    // DON'T DO THIS: this.state.persons[0].name = 'Maximilian';
-    this.setState({
-      persons: [
-        { name: newName, age: 23 },
-        { name: 'Daniel Bastos', age: 22 },
-        { name: 'meu amigo zé', age: 24 }
-      ]
+  nameChangeHandler = (event, id) => {
+    const personIndex = this.state.persons.findIndex(p => {
+      return p.id ===id;
+
     });
-  };
-  nameChangeHandler = (event) => {
-    this.setState({
-      persons: [
-        { name: 'Nadia', age: 23 },
-        { name: event.target.value, age: 22 },
-        { name: 'meu amigo zé', age: 24 }
-      ]
-    });
+    //desse jeito muda o original
+    //const person = this.state.persons[personIndex];
+    const person = {
+      ...this.state.persons[personIndex]
+    };
+
+    person.name = event.target.value;
+
+    const persons = [...this.state.persons];
+    persons[personIndex] = person;
+
+    this.setState({persons: persons});
+  }
+
+  deletePersonHandler = (personIndex) => {
+//deletar uma pessoa de uma array of person.
+//desse jeito, eu to criando um pointer e mudando o obj original. Estou mudando o dado original.
+//criar uma copia antes de manipular o objeto com slice, assim eu copio a array inteira na constante criada 
+    //const persons = this.state.persons.slice(); <- jeito simples
+    const persons = [...this.state.persons]; //array com os objetos da array antiga, mas é nova
+    persons.splice(personIndex,1)
+    this.setState({persons: persons})
+    //just changing the pointer
   }
 
   togglePersonsHandler = () => {
     const doesShow = this.state.showPersons;
-    this.setState({showPersons: !doesShow});
+    this.setState({ showPersons: !doesShow });
   }
   render() {
 
@@ -48,6 +57,24 @@ class App extends Component {
       cursor: 'pointer',
 
     };
+
+    let persons = null;
+    //if pode ser aqui porque nao é dentro no JSX. Jeito mais elegante. Codigo mais clean
+    if (this.state.showPersons) {
+      persons = (
+        <div>
+          {this.state.persons.map((person, index) => {
+            return <Person 
+            click={() => this.deletePersonHandler(index)}
+            name={person.name}
+            age={person.age} 
+            key={person.id}
+            changed={(event) =>this.nameChangeHandler(event, person.id)}/>
+          })}
+        </div>
+
+      );
+    }
     return (
       <div className="App">
         <h1>Hi, I'm a React App</h1>
@@ -56,31 +83,9 @@ class App extends Component {
         <button
           style={style}
           onClick={this.togglePersonsHandler}>Toggle Persons</button>
-        {
-          this.state.showPersons ? //se for true, vai mostrar meu div. Nem sempre é bom
-            <div>
-              <Person
-                name={this.state.persons[0].name}
-                age={this.state.persons[0].age}
-              />
-              <Person
-                name={this.state.persons[1].name}
-                age={this.state.persons[1].age}
-                click={this.switchNameHandler.bind(this, 'Dan!')}//passando como referencia para click propertie
-                changed={this.nameChangeHandler}
-              >
-                My Hobbies: mandar nadia estudar
-        </Person>
-              <Person
-                name={this.state.persons[2].name}
-                age={this.state.persons[2].age}
-              />
-            </div> : null //se for falso, por enquanto, nao mostra nada
-  }
-
+        {persons}
       </div>
     );
-    ////adicionando um div logo apos de button
     // return React.createElement('div', {className: 'App'}, React.createElement('h1', null, 'Does this work now?'));
   }
 }
