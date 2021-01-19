@@ -1,8 +1,9 @@
-/*.Person {
+.Person {
     width: 60%;
-    margin: 16px;
+    margin: 16px auto;
     border: 1px solid #eeeeee;
     box-shadow: 0 2px 3px #cccccc;
+    padding: 16px;
     text-align: center;
 }
 
@@ -11,4 +12,3 @@
         width: 450px;
     }
 } 
-jeito de fazer sem ser com radium */
